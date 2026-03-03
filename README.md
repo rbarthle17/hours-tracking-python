@@ -2,7 +2,7 @@
 
 A port of the ColdBox/CFML hours tracking app, built with Flask and Python.
 
-**Database:** Shares the `hours_tracking` MySQL database with the other ports.
+**Database:** Uses the `hours_tracking` MySQL database.
 **URL:** `http://127.0.0.1:8001`
 **Login:** `rob.barthle@cf-expert.com` / `admin123`
 
@@ -30,5 +30,4 @@ Press `Ctrl+C` to stop.
 ## Notes
 
 - `.env` is already configured — no changes needed.
-- No migrations need to be run; the database is shared and already populated.
 - Dependencies are managed by `uv` and defined in `pyproject.toml`. They are installed automatically on first run.
