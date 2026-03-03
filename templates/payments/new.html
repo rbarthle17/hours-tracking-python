@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %} - Record Payment{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-cash"></i> Record Payment</h1>
+                <a href="{{ url_for('invoices.show', id=invoice.id) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Invoice
+                </a>
+            </div>
+
+            <div class="alert alert-info">
+                <strong>{{ invoice.invoice_number }}</strong> &mdash; {{ invoice.client_name }}<br>
+                Total: {{ format_currency(invoice.total_amount) }} &middot;
+                Paid: {{ format_currency(invoice.total_paid) }} &middot;
+                <strong>Balance Due: {{ format_currency(balance_due) }}</strong>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('payments.create', invoice_id=invoice.id) }}">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="amount" class="form-label">Amount <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="amount" name="amount"
+                                           value="{{ '%.2f'|format(balance_due) }}" step="0.01" min="0.01" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="payment_date" class="form-label">Payment Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="payment_date" name="payment_date"
+                                       value="{{ now.strftime('%Y-%m-%d') }}" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="method" class="form-label">Method</label>
+                                <select class="form-select" id="method" name="method">
+                                    <option value="">Select...</option>
+                                    <option value="check">Check</option>
+                                    <option value="ach">ACH</option>
+                                    <option value="wire">Wire</option>
+                                    <option value="credit_card">Credit Card</option>
+                                    <option value="paypal">PayPal</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="reference_number" class="form-label">Reference #</label>
+                                <input type="text" class="form-control" id="reference_number" name="reference_number">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-lg"></i> Record Payment
+                            </button>
+                            <a href="{{ url_for('invoices.show', id=invoice.id) }}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

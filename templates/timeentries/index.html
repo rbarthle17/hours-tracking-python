@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %} - Time Entries{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-clock-history"></i> Time Entries</h1>
+        <a href="{{ url_for('timeentries.new') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Log Time
+        </a>
+    </div>
+
+    <form method="GET" action="{{ url_for('timeentries.index') }}" class="mb-3">
+        <div class="row g-2" style="max-width:900px">
+            <div class="col-auto">
+                <select name="client_id" class="form-select form-select-sm">
+                    <option value="">All Clients</option>
+                    {% for c in clients %}
+                    <option value="{{ c.id }}" {{ 'selected' if client_id == c.id }}>{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <select name="contract_id" class="form-select form-select-sm">
+                    <option value="">All Contracts</option>
+                    {% for c in contracts %}
+                    <option value="{{ c.id }}" {{ 'selected' if contract_id == c.id }}>{{ c.client_name }} - {{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <input type="date" name="start_date" class="form-control form-control-sm" value="{{ start_date }}">
+            </div>
+            <div class="col-auto">
+                <input type="date" name="end_date" class="form-control form-control-sm" value="{{ end_date }}">
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-sm btn-outline-secondary" type="submit">
+                    <i class="bi bi-funnel"></i> Filter
+                </button>
+                {% if client_id or contract_id or start_date or end_date %}
+                <a href="{{ url_for('timeentries.index') }}" class="btn btn-sm btn-outline-secondary">Clear</a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+
+    {% if entries %}
+    {% set total = entries|sum(attribute='hours_worked') %}
+    <div class="alert alert-info py-2 mb-3" style="max-width:400px">
+        <strong>{{ '%.2f'|format(total|float) }} hours</strong> across {{ entries|length }} entries
+    </div>
+    {% endif %}
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Date</th><th>Ticket</th><th>Client</th><th>Contract</th>
+                    <th class="text-end">Hours</th><th>Notes</th><th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in entries %}
+                <tr>
+                    <td>{{ e.entry_date|app_date }}</td>
+                    <td>
+                        <a href="{{ url_for('tickets.show', id=e.ticket_id) }}">{{ e.ticket_title }}</a>
+                    </td>
+                    <td>{{ e.client_name }}</td>
+                    <td>{{ e.contract_name }}</td>
+                    <td class="text-end">{{ '%.2f'|format(e.hours_worked|float) }}</td>
+                    <td>
+                        {% if e.notes %}
+                        <span title="{{ e.notes }}">{{ e.notes[:40] }}{% if e.notes|length > 40 %}…{% endif %}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <a href="{{ url_for('timeentries.show', id=e.id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{{ url_for('timeentries.edit', id=e.id) }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" class="text-center text-muted py-4">No time entries found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

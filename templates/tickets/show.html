@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %} - {{ ticket.title }}{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-kanban"></i> {{ ticket.title }}</h1>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('tickets.edit', id=ticket.id) }}" class="btn btn-outline-secondary">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <form method="POST" action="{{ url_for('tickets.delete', id=ticket.id) }}" class="d-inline"
+                  onsubmit="return confirm('Delete this ticket?')">
+                <button type="submit" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Delete</button>
+            </form>
+            <a href="{{ url_for('tickets.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header"><h5 class="mb-0">Details</h5></div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Client</dt>
+                        <dd class="col-sm-7">
+                            <a href="{{ url_for('clients.show', id=ticket.client_id) }}">{{ ticket.client_name }}</a>
+                        </dd>
+                        <dt class="col-sm-5">Status</dt>
+                        <dd class="col-sm-7">{{ status_badge(ticket.status) }}</dd>
+                        <dt class="col-sm-5">Priority</dt>
+                        <dd class="col-sm-7">{{ status_badge(ticket.priority) }}</dd>
+                        {% if ticket.description %}
+                        <dt class="col-sm-5">Description</dt>
+                        <dd class="col-sm-7">{{ ticket.description }}</dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Time Entries</h5>
+                    <a href="{{ url_for('timeentries.new') }}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-lg"></i> Log Time
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table mb-0">
+                        <thead class="table-light">
+                            <tr><th>Date</th><th>Contract</th><th>User</th><th class="text-end">Hours</th><th class="text-end">Amount</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for e in entries %}
+                            <tr>
+                                <td>{{ e.entry_date|app_date }}</td>
+                                <td>{{ e.contract_name }}</td>
+                                <td>{{ e.user_name }}</td>
+                                <td class="text-end">{{ '%.2f'|format(e.hours_worked|float) }}</td>
+                                <td class="text-end">{{ format_currency(e.hours_worked|float * e.hourly_rate|float) }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="5" class="text-muted text-center py-3">No time entries yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
